@@ -3,25 +3,34 @@ import AssignmentList from "./AssignmentList.js";
 
 export default {
   components: { AssignmentList, AssignmentCreate },
-
   template: `
-      <section class="space-y-6">
-          <assignment-list :assignments="filters.inProgress" title="In Progress"></assignment-list>
-          <assignment-list :assignments="filters.completed" title="Completed"></assignment-list>
-          <assignment-create @add="add"></assignment-create>
+      <section class="flex gap-8">
+          <assignment-list
+            :assignments="filters.inProgress"
+            title="In Progress"
+          >
+            <assignment-create @add="add"/>
+          </assignment-list>
+          <div v-show="showCompleted">
+            <assignment-list
+              :assignments="filters.completed"
+              title="Completed"
+              can-toggle
+              @toggle="showCompleted = !showCompleted"
+            />
+          </div>
       </section>
   `,
-
+  async created() {
+    const response = await fetch('http://localhost:3001/assignments');
+    this.assignments = await response.json();
+  },
   data() {
     return {
-      assignments: [
-        { name: 'Finish project', complete: false, id: 1 },
-        { name: 'Read Chapter 4', complete: false, id: 2 },
-        { name: 'Turn in Homework', complete: false, id: 3 },
-      ],
+      assignments: [],
+      showCompleted: true,
     }
   },
-
   computed: {
     filters() {
       return {
